@@ -1,6 +1,6 @@
 services:
   web:
-    build: .
+    build: danhtran3301/dorashop:latest
     # command: gunicorn dorashop.wsgi:application --bind 0.0.0.0:8000
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
