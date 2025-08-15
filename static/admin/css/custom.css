@@ -1,0 +1,48 @@
+/* Tùy chỉnh phần branding */
+#site-branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0 10px;
+}
+/* Đổi màu thanh tiêu đề thành trắng */
+#header {
+    background-color: #9ed6dd !important;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Chỉnh màu chữ để dễ nhìn trên nền trắng */
+#branding h1, #branding h1 a, #user-tools {
+    color: #333 !important;
+}
+
+/* Nếu có logo và muốn giữ lại */
+#branding .logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* Tùy chọn: đổi màu biểu tượng toggle theme */
+.theme-toggle {
+    filter: invert(0); /* chuyển sang đen nếu biểu tượng trắng */
+}
+
+.brand-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+    border-radius: 5px;
+}
+
+.brand-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2a2c31;
+}
+
+/* Bạn có thể thêm hiệu ứng hover hoặc font đẹp hơn ở đây */

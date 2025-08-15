@@ -1,0 +1,49 @@
+.navbar {
+    background-color: #8ad0da !important; /* xanh Doraemon nhạt */
+}
+.navbar .nav-link.active {
+    font-weight: bold;
+    color: #fff !important;
+}
+.navbar .nav-link {
+    color: #fefefe !important;
+    font-weight: 600;
+    text-shadow: 0 0 2px rgba(0,0,0,0.2); /* Giúp nổi bật hơn trên nền sáng */
+}
+
+
+.cart-icon {
+    position: relative;
+}
+.cart-icon::after {
+    content: "3"; /* số lượng sản phẩm demo */
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+.comic-card {
+    width: 300px;          /* Giảm chiều rộng card */
+    margin: 0 auto;        /* Căn giữa card trong cột */
+}
+
+.comic-card .card-body,
+.comic-card .card-footer {
+    text-align: center;    /* Căn giữa nội dung trong card */
+}
+.comic-img {
+    width: auto;
+    max-height: 250px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+.logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}

@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{# Thêm CSS tùy chỉnh #}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom.css' %}">
+{% endblock %}
+
+{# Ghi đè phần tiêu đề admin #}
+{% block branding %}
+  <div id="site-branding">
+    <a href="{% url 'admin:index' %}" class="brand-link">
+      <img src="{% static 'img/dora_logo.png' %}" alt="DoraShop Logo" class="logo">
+      <span class="brand-text">DoraShop Admin</span>
+    </a>
+  </div>
+{% endblock %}
