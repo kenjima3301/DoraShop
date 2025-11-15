@@ -22,7 +22,8 @@ python manage.py collectstatic --noinput
 echo "Applying database migrations..."
 python manage.py migrate
 
-# docker-compose exec web python manage.py createsuperuser
+echo "Kiểm tra và tạo admin nếu cần..."
+python manage.py create_admin
 
 # 'exec "$@"' là một lệnh đặc biệt.
 # "$@" đại diện cho tất cả các đối số được truyền vào script.
