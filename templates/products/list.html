@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách truyện</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar Filter -->
+        <div class="col-md-3 mb-4">
+            <div class="card filter-card h-100">
+                <h5 class="filter-title"><i class="fa-solid fa-filter me-2"></i>Bộ lọc</h5>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Loại truyện</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="cat1" checked>
+                        <label class="form-check-label" for="cat1">Truyện ngắn</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="cat2">
+                        <label class="form-check-label" for="cat2">Truyện dài</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="cat3">
+                        <label class="form-check-label" for="cat3">Truyện màu</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Khoảng giá</h6>
+                    <input type="range" class="form-range" id="priceRange">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>10k</span>
+                        <span>200k</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 rounded-pill">Áp dụng</button>
+            </div>
+        </div>
+
+        <!-- Main Product Grid -->
+        <div class="col-md-9">
+            <!-- Toolbar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm">
+                <span class="text-muted">Hiển thị <b>{{ comics.count }}</b> kết quả</span>
+                <select class="form-select w-auto rounded-pill border-0 bg-light">
+                    <option selected>Mới nhất</option>
+                    <option value="1">Giá thấp đến cao</option>
+                    <option value="2">Giá cao đến thấp</option>
+                    <option value="3">Bán chạy nhất</option>
+                </select>
+            </div>
+
+            <!-- Grid: Data from database -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                {% for comic in comics %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="position-relative">
+                            {% if comic.is_bestseller %}
+                            <span class="badge bg-danger position-absolute top-0 start-0 m-2 rounded-pill">Hot</span>
+                            {% endif %}
+
+                            <a href="{% url 'product_detail' comic.pk %}">
+                                {% if comic.image %}
+                                <img src="{{ comic.image.url }}" class="card-img-top product-card-img"
+                                    alt="{{ comic.title }}">
+                                {% else %}
+                                <img src="https://placehold.co/300x400/f0f0f0/333333?text=No+Image"
+                                    class="card-img-top product-card-img" alt="No Image">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">
+                                <a href="{% url 'product_detail' comic.pk %}" class="text-decoration-none text-dark">
+                                    {{ comic.title }}
+                                </a>
+                            </h5>
+                            <div class="mt-auto">
+                                <span class="price-tag d-block mb-2">{{ comic.price|floatformat:0 }}đ</span>
+                                <button class="btn btn-primary w-100 btn-sm rounded-pill">
+                                    <i class="fa-solid fa-cart-shopping me-1"></i> Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 py-5 text-center">
+                    <p class="text-muted">Không tìm thấy sản phẩm nào.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled"><a class="page-link rounded-start-pill" href="#">Trước</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link rounded-end-pill" href="#">Sau</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
