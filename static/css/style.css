@@ -1,0 +1,281 @@
+/* 
+   DoraShop Design System 
+   Based on Bootstrap 5
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --dora-blue: #0096E1;
+    --dora-red: #EE2C2C;
+    --dora-yellow: #FFD308;
+    --dora-dark: #333333;
+    --dora-light: #F4F8FB;
+    --card-radius: 15px;
+    --btn-radius: 50rem;
+    /* Pill shape */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--dora-light);
+    color: var(--dora-dark);
+}
+
+/* --- Typography --- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+}
+
+.text-primary {
+    color: var(--dora-blue) !important;
+}
+
+.text-accent {
+    color: var(--dora-red) !important;
+}
+
+.text-warning {
+    color: var(--dora-yellow) !important;
+}
+
+/* --- Navbar --- */
+.navbar-dora {
+    background-color: var(--dora-blue);
+    box-shadow: 0 4px 10px rgba(0, 150, 225, 0.3);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: white !important;
+    letter-spacing: 1px;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input {
+    border-radius: var(--btn-radius);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 211, 8, 0.5);
+    /* Yellow glow */
+}
+
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    bottom: 5px;
+    background-color: var(--dora-blue);
+    color: white;
+    border: none;
+    border-radius: var(--btn-radius);
+    padding: 0 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background-color: #007bb8;
+}
+
+.nav-icon-link {
+    color: white;
+    font-size: 1.3rem;
+    margin-left: 1.5rem;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.nav-icon-link:hover {
+    color: var(--dora-yellow);
+    transform: scale(1.1);
+}
+
+.badge-cart {
+    background-color: var(--dora-red);
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    font-size: 0.7rem;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: var(--btn-radius);
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--dora-blue);
+    border-color: var(--dora-blue);
+}
+
+.btn-primary:hover {
+    background-color: #007bb8;
+    border-color: #007bb8;
+}
+
+.btn-accent {
+    background-color: var(--dora-red);
+    border-color: var(--dora-red);
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #c91e1e;
+    color: white;
+}
+
+.btn-outline-primary {
+    color: var(--dora-blue);
+    border-color: var(--dora-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--dora-blue);
+    color: white;
+}
+
+/* --- Cards --- */
+.card {
+    border-radius: var(--card-radius);
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 150, 225, 0.15);
+}
+
+/* Product Image Wrapper & Style */
+.product-img-wrapper {
+    display: block;
+    padding: 5px;
+    /* Create 5px gap from outer border */
+}
+
+.product-card-img {
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+    object-position: top;
+    /* Ensure image takes from top down */
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    /* Slight radius to fit nicely inside the card */
+}
+
+.card-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.price-tag {
+    color: var(--dora-red);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* --- Carousel --- */
+.carousel-item img {
+    border-radius: var(--card-radius);
+    max-height: 400px;
+    object-fit: cover;
+}
+
+/* --- Sidebar (List View) --- */
+.filter-card {
+    background-color: white;
+    padding: 1.5rem;
+}
+
+.filter-title {
+    color: var(--dora-blue);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--dora-light);
+    padding-bottom: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--dora-blue);
+    border-color: var(--dora-blue);
+}
+
+/* --- Product Detail --- */
+.product-detail-img {
+    border-radius: var(--card-radius);
+    width: 100%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.detail-price {
+    font-size: 2.5rem;
+    color: var(--dora-red);
+    font-weight: 800;
+}
+
+.quantity-input {
+    max-width: 120px;
+    border-radius: var(--btn-radius);
+    text-align: center;
+    border: 1px solid #ced4da;
+    padding: 0.375rem 0.75rem;
+}
+
+/* --- Cart --- */
+.cart-table thead th {
+    border-top: none;
+    color: var(--dora-blue);
+    font-weight: 600;
+}
+
+.cart-img-thumbnail {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.cart-summary-card {
+    background-color: white;
+    padding: 2rem;
+}
+
+.empty-cart-container {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.empty-cart-img {
+    max-width: 250px;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
