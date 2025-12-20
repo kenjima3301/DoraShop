@@ -3,7 +3,7 @@
    Based on Bootstrap 5
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     --dora-blue: #0096E1;
@@ -17,7 +17,7 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--dora-light);
     color: var(--dora-dark);
 }
@@ -233,13 +233,17 @@ h6 {
 .product-detail-img {
     border-radius: var(--card-radius);
     width: 100%;
+    max-height: 600px;
+    object-fit: contain;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    padding: 10px;
 }
 
 .detail-price {
-    font-size: 2.5rem;
+    font-size: 2rem;
     color: var(--dora-red);
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .quantity-input {
@@ -278,4 +282,84 @@ h6 {
     max-width: 250px;
     margin-bottom: 2rem;
     opacity: 0.8;
+}
+
+/* --- Improvements --- */
+.card-body {
+    padding: 1rem;
+}
+
+.card-title a:hover {
+    color: var(--dora-blue) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .detail-price {
+        font-size: 1.5rem;
+    }
+
+    .product-card-img {
+        height: 250px;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}
+
+/* Fix for long Vietnamese text */
+.card-title {
+    line-height: 1.4;
+    min-height: 2.8rem;
+}
+
+/* Smooth transitions */
+.card,
+.btn,
+.nav-icon-link {
+    transition: all 0.3s ease;
+}
+
+/* Better focus states */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--dora-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 150, 225, 0.25);
+}
+
+/* Breadcrumb improvements */
+.breadcrumb-sm {
+    font-size: 0.8rem;
+    padding: 0.5rem 0;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    color: #999;
+}
+
+/* Quantity controls */
+.quantity-control {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.quantity-control .btn {
+    border-radius: 0;
+    font-weight: 600;
+    min-width: 40px;
+    padding: 0.5rem 0.75rem;
+}
+
+.quantity-control input {
+    border-left: 0;
+    border-right: 0;
+    font-weight: 600;
+    max-width: 50px;
+}
+
+.quantity-control input:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
 }

@@ -21,7 +21,7 @@
         <div class="container">
             <!-- Logo -->
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fa-solid fa-book-open me-2"></i>DoraShop
+                <i class="fa-solid fa-book-open me-2"></i>DoraShop - DevOps
             </a>
 
             <!-- Mobile Toggle -->
@@ -43,9 +43,11 @@
                 <!-- Right Icons -->
                 <div class="d-flex align-items-center justify-content-center mt-3 mt-lg-0">
                     <!-- Cart -->
-                    <a href="{% url 'cart_summary' %}" class="nav-icon-link text-decoration-none">
+                    <a href="{% url 'cart:summary' %}" class="nav-icon-link text-decoration-none">
                         <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="badge rounded-pill badge-cart">3</span>
+                        {% if cart_count > 0 %}
+                        <span class="badge rounded-pill badge-cart">{{ cart_count }}</span>
+                        {% endif %}
                     </a>
 
                     <!-- User -->
@@ -78,6 +80,18 @@
 
     <!-- Main Content -->
     <main class="py-4 min-vh-100">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}
         {% endblock %}
     </main>

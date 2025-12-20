@@ -72,9 +72,20 @@
                     </div>
                     <div class="mt-auto d-flex justify-content-between align-items-center">
                         <span class="price-tag">{{ comic.price|floatformat:0 }}đ</span>
-                        <button class="btn btn-sm btn-outline-primary rounded-circle" title="Thêm vào giỏ">
+                        {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'cart:add' comic.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-primary rounded-circle"
+                                title="Thêm vào giỏ">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'home' %}"
+                            class="btn btn-sm btn-outline-primary rounded-circle" title="Đăng nhập để mua">
                             <i class="fa-solid fa-cart-plus"></i>
-                        </button>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
