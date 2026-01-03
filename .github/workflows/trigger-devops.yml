@@ -3,10 +3,182 @@ name: Trigger DevOps Update
 on:
   push:
     branches: [ "main" ]
+    paths:
+      # Application Code
+      - 'cart/**'
+      - 'products/**'
+      - 'dorashop/*.py'
+      
+      # Critical Files
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - 'entrypoint.sh'
+      - 'manage.py'
+      
+      # Frontend & Assets
+      - 'templates/**'
+      - 'static/**'
+      - 'resources/**'
+      
+      # Configuration
+      - 'nginx.conf'
+      - 'initial_data.json'
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_services: ${{ steps.categorize.outputs.services }}
+      change_type: ${{ steps.categorize.outputs.change_type }}
+      critical_files: ${{ steps.categorize.outputs.critical_files }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Files
+        id: detect
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            cart:
+              - cart/**
+            products:
+              - products/**
+            core:
+              - dorashop/*.py
+              - manage.py
+            critical:
+              - Dockerfile
+              - requirements.txt
+              - entrypoint.sh
+              - dorashop/settings.py
+            frontend:
+              - templates/**
+              - static/**
+              - resources/**
+            config:
+              - nginx.conf
+              - initial_data.json
+              - docker-compose.yml
+
+      - name: Categorize Changes
+        id: categorize
+        run: |
+          SERVICES=""
+          CHANGE_TYPE="normal"
+          CRITICAL_FILES="false"
+          
+          # Check critical files
+          if [[ "${{ steps.detect.outputs.critical_any_changed }}" == "true" ]]; then
+            CRITICAL_FILES="true"
+            CHANGE_TYPE="critical"
+            echo "🔴 Critical files changed - Full rebuild required"
+          fi
+          
+          # Check cart service
+          if [[ "${{ steps.detect.outputs.cart_any_changed }}" == "true" ]]; then
+            SERVICES="cart"
+            echo "🛒 Cart service changed"
+          fi
+          
+          # Check products service
+          if [[ "${{ steps.detect.outputs.products_any_changed }}" == "true" ]]; then
+            if [[ -n "$SERVICES" ]]; then
+              SERVICES="$SERVICES,products"
+            else
+              SERVICES="products"
+            fi
+            echo "📦 Products service changed"
+          fi
+          
+          # Check core Django files
+          if [[ "${{ steps.detect.outputs.core_any_changed }}" == "true" ]]; then
+            if [[ -z "$SERVICES" ]]; then
+              SERVICES="all"
+            fi
+            CHANGE_TYPE="core"
+            echo "⚙️ Core Django files changed"
+          fi
+          
+          # Check frontend files
+          if [[ "${{ steps.detect.outputs.frontend_any_changed }}" == "true" ]]; then
+            if [[ -z "$SERVICES" ]]; then
+              SERVICES="frontend"
+            fi
+            echo "🎨 Frontend files changed"
+          fi
+          
+          # Check config files
+          if [[ "${{ steps.detect.outputs.config_any_changed }}" == "true" ]]; then
+            CHANGE_TYPE="config"
+            echo "🔧 Config files changed"
+          fi
+          
+          # Default to all if nothing specific detected
+          if [[ -z "$SERVICES" ]]; then
+            SERVICES="all"
+          fi
+          
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          echo "change_type=$CHANGE_TYPE" >> $GITHUB_OUTPUT
+          echo "critical_files=$CRITICAL_FILES" >> $GITHUB_OUTPUT
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 Change Summary:"
+          echo "   Services: $SERVICES"
+          echo "   Type: $CHANGE_TYPE"
+          echo "   Critical: $CRITICAL_FILES"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: List Changed Files
+        run: |
+          echo "📝 Changed Files Details:"
+          echo ""
+          
+          if [[ "${{ steps.detect.outputs.cart_any_changed }}" == "true" ]]; then
+            echo "🛒 Cart Files:"
+            echo "${{ steps.detect.outputs.cart_all_changed_files }}"
+            echo ""
+          fi
+          
+          if [[ "${{ steps.detect.outputs.products_any_changed }}" == "true" ]]; then
+            echo "📦 Products Files:"
+            echo "${{ steps.detect.outputs.products_all_changed_files }}"
+            echo ""
+          fi
+          
+          if [[ "${{ steps.detect.outputs.critical_any_changed }}" == "true" ]]; then
+            echo "🔴 Critical Files:"
+            echo "${{ steps.detect.outputs.critical_all_changed_files }}"
+            echo ""
+          fi
+          
+          if [[ "${{ steps.detect.outputs.core_any_changed }}" == "true" ]]; then
+            echo "⚙️ Core Files:"
+            echo "${{ steps.detect.outputs.core_all_changed_files }}"
+            echo ""
+          fi
+          
+          if [[ "${{ steps.detect.outputs.frontend_any_changed }}" == "true" ]]; then
+            echo "🎨 Frontend Files:"
+            echo "${{ steps.detect.outputs.frontend_all_changed_files }}"
+            echo ""
+          fi
+          
+          if [[ "${{ steps.detect.outputs.config_any_changed }}" == "true" ]]; then
+            echo "🔧 Config Files:"
+            echo "${{ steps.detect.outputs.config_all_changed_files }}"
+            echo ""
+          fi
+
   notify:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changed_services != ''
+    
     steps:
       - name: Send Dispatch Event
         uses: peter-evans/repository-dispatch@v2
@@ -14,4 +186,13 @@ jobs:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: '{"sha": "${{ github.sha }}"}'
+          client-payload: |
+            {
+              "sha": "${{ github.sha }}",
+              "changed_services": "${{ needs.detect-changes.outputs.changed_services }}",
+              "change_type": "${{ needs.detect-changes.outputs.change_type }}",
+              "critical_files": "${{ needs.detect-changes.outputs.critical_files }}",
+              "branch": "${{ github.ref_name }}",
+              "commit_message": "${{ github.event.head_commit.message }}",
+              "author": "${{ github.event.head_commit.author.name }}"
+            }
