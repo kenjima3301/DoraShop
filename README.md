@@ -1,3 +1,2 @@
 #  DoraShop
 
-Test trigger pipeline
