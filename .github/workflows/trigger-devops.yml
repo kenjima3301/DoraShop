@@ -65,6 +65,7 @@ jobs:
           fi
 
       - name: Send Dispatch Event to DevOps Repo
+        id: dispatch
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.DEVOPS_PAT }}
@@ -82,3 +83,16 @@ jobs:
               "cart_files": "${{ steps.changed-files.outputs.cart_all_changed_files }}",
               "products_files": "${{ steps.changed-files.outputs.products_all_changed_files }}"
             }
+
+      - name: Verify Dispatch
+        if: always()
+        run: |
+          echo "## ✅ Repository Dispatch Sent" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Repository:** kenjima3301/NT548-DevOps" >> $GITHUB_STEP_SUMMARY
+          echo "**Event Type:** update-submodule" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Note:** If NT548-DevOps workflow doesn't trigger, check:" >> $GITHUB_STEP_SUMMARY
+          echo "1. PAT token has \`workflow\` scope" >> $GITHUB_STEP_SUMMARY
+          echo "2. update-submodule.yml exists in NT548-DevOps/.github/workflows/" >> $GITHUB_STEP_SUMMARY
+          echo "3. Event type matches: \`repository_dispatch.types: [update-submodule]\`" >> $GITHUB_STEP_SUMMARY
