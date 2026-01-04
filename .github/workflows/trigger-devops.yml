@@ -22,7 +22,7 @@ jobs:
               - cart/**
             products:
               - products/**
-            critical:
+            core:
               - dorashop/**
               - requirements.txt
               - Dockerfile
@@ -30,33 +30,33 @@ jobs:
               - manage.py
               - entrypoint.sh
 
-      - name: Build Changed Paths Info
-        id: build-info
+      - name: Build Changed Paths
+        id: paths
         run: |
-          CHANGED_PATHS=""
+          PATHS=""
           
           if [[ "${{ steps.changed-files.outputs.cart_any_changed }}" == "true" ]]; then
-            CHANGED_PATHS="${CHANGED_PATHS}cart,"
+            PATHS="${PATHS}cart "
           fi
           
           if [[ "${{ steps.changed-files.outputs.products_any_changed }}" == "true" ]]; then
-            CHANGED_PATHS="${CHANGED_PATHS}products,"
+            PATHS="${PATHS}products "
           fi
           
-          if [[ "${{ steps.changed-files.outputs.critical_any_changed }}" == "true" ]]; then
-            CHANGED_PATHS="${CHANGED_PATHS}critical,"
+          if [[ "${{ steps.changed-files.outputs.core_any_changed }}" == "true" ]]; then
+            PATHS="${PATHS}core "
           fi
           
-          # Remove trailing comma
-          CHANGED_PATHS="${CHANGED_PATHS%,}"
+          # Trim spaces
+          PATHS=$(echo "$PATHS" | xargs)
           
-          # If no specific paths changed, mark as "other"
-          if [[ -z "$CHANGED_PATHS" ]]; then
-            CHANGED_PATHS="other"
+          # If empty, set to "other"
+          if [[ -z "$PATHS" ]]; then
+            PATHS="other"
           fi
           
-          echo "changed_paths=$CHANGED_PATHS" >> $GITHUB_OUTPUT
-          echo "📝 Changed paths: $CHANGED_PATHS"
+          echo "changed=$PATHS" >> $GITHUB_OUTPUT
+          echo "📝 Changed: $PATHS"
 
       - name: Send Dispatch Event
         uses: peter-evans/repository-dispatch@v2
@@ -64,4 +64,4 @@ jobs:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: '{"sha": "${{ github.sha }}", "changed_paths": "${{ steps.build-info.outputs.changed_paths }}"}'
+          client-payload: '{"sha": "${{ github.sha }}", "paths": "${{ steps.paths.outputs.changed }}"}'
