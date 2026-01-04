@@ -5,13 +5,91 @@ on:
     branches: [ "main" ]
 
 jobs:
-  notify:
+  detect-and-notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Dispatch Event
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files_yaml: |
+            cart:
+              - cart/**
+            products:
+              - products/**
+            core:
+              - dorashop/**
+              - manage.py
+            settings:
+              - dorashop/settings.py
+              - dorashop/urls.py
+            requirements:
+              - requirements.txt
+              - Dockerfile
+              - docker-compose.yml
+              - entrypoint.sh
+            templates:
+              - templates/**
+            static:
+              - static/**
+
+      - name: Build Payload
+        id: payload
+        run: |
+          # Convert boolean outputs to lowercase for JSON
+          CART_CHANGED="${{ steps.changed-files.outputs.cart_any_changed }}"
+          PRODUCTS_CHANGED="${{ steps.changed-files.outputs.products_any_changed }}"
+          CORE_CHANGED="${{ steps.changed-files.outputs.core_any_changed }}"
+          SETTINGS_CHANGED="${{ steps.changed-files.outputs.settings_any_changed }}"
+          REQUIREMENTS_CHANGED="${{ steps.changed-files.outputs.requirements_any_changed }}"
+          TEMPLATES_CHANGED="${{ steps.changed-files.outputs.templates_any_changed }}"
+          STATIC_CHANGED="${{ steps.changed-files.outputs.static_any_changed }}"
+          
+          # Get changed files list
+          ALL_CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          CART_FILES="${{ steps.changed-files.outputs.cart_all_changed_files }}"
+          PRODUCTS_FILES="${{ steps.changed-files.outputs.products_all_changed_files }}"
+          
+          # Build JSON payload
+          PAYLOAD=$(cat <<EOF
+          {
+            "sha": "${{ github.sha }}",
+            "ref": "${{ github.ref }}",
+            "cart_changed": "${CART_CHANGED,,}",
+            "products_changed": "${PRODUCTS_CHANGED,,}",
+            "core_changed": "${CORE_CHANGED,,}",
+            "settings_changed": "${SETTINGS_CHANGED,,}",
+            "requirements_changed": "${REQUIREMENTS_CHANGED,,}",
+            "templates_changed": "${TEMPLATES_CHANGED,,}",
+            "static_changed": "${STATIC_CHANGED,,}",
+            "all_changed_files": "${ALL_CHANGED_FILES}",
+            "cart_changed_files": "${CART_FILES}",
+            "products_changed_files": "${PRODUCTS_FILES}"
+          }
+          EOF
+          )
+          
+          echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
+          
+          echo "## 🚀 Triggering DevOps Pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changed Services:" >> $GITHUB_STEP_SUMMARY
+          [[ "${CART_CHANGED,,}" == "true" ]] && echo "- 🛒 Cart Service" >> $GITHUB_STEP_SUMMARY
+          [[ "${PRODUCTS_CHANGED,,}" == "true" ]] && echo "- 📦 Products Service" >> $GITHUB_STEP_SUMMARY
+          [[ "${CORE_CHANGED,,}" == "true" ]] && echo "- ⚙️ Core/Settings" >> $GITHUB_STEP_SUMMARY
+          [[ "${REQUIREMENTS_CHANGED,,}" == "true" ]] && echo "- 📋 Dependencies" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send Dispatch Event to DevOps Repo
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: '{"sha": "${{ github.sha }}"}'
+          client-payload: ${{ steps.payload.outputs.payload }}
