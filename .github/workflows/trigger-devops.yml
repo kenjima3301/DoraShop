@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Detect Changed Paths
         id: changed-files
@@ -64,4 +64,8 @@ jobs:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: '{"sha": "${{ github.sha }}", "changed_paths": "${{ steps.build-info.outputs.changed_paths }}"}'
+          client-payload: |
+            {
+              "sha": "${{ github.sha }}",
+              "changed_paths": "${{ steps.build-info.outputs.changed_paths }}"
+            }
