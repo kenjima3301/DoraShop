@@ -38,53 +38,31 @@ jobs:
             static:
               - static/**
 
-      - name: Build Payload
-        id: payload
+      - name: Display Changes Summary
         run: |
-          # Convert boolean outputs to lowercase for JSON
-          CART_CHANGED="${{ steps.changed-files.outputs.cart_any_changed }}"
-          PRODUCTS_CHANGED="${{ steps.changed-files.outputs.products_any_changed }}"
-          CORE_CHANGED="${{ steps.changed-files.outputs.core_any_changed }}"
-          SETTINGS_CHANGED="${{ steps.changed-files.outputs.settings_any_changed }}"
-          REQUIREMENTS_CHANGED="${{ steps.changed-files.outputs.requirements_any_changed }}"
-          TEMPLATES_CHANGED="${{ steps.changed-files.outputs.templates_any_changed }}"
-          STATIC_CHANGED="${{ steps.changed-files.outputs.static_any_changed }}"
-          
-          # Get changed files list
-          ALL_CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          CART_FILES="${{ steps.changed-files.outputs.cart_all_changed_files }}"
-          PRODUCTS_FILES="${{ steps.changed-files.outputs.products_all_changed_files }}"
-          
-          # Build JSON payload
-          PAYLOAD=$(cat <<EOF
-          {
-            "sha": "${{ github.sha }}",
-            "ref": "${{ github.ref }}",
-            "cart_changed": "${CART_CHANGED,,}",
-            "products_changed": "${PRODUCTS_CHANGED,,}",
-            "core_changed": "${CORE_CHANGED,,}",
-            "settings_changed": "${SETTINGS_CHANGED,,}",
-            "requirements_changed": "${REQUIREMENTS_CHANGED,,}",
-            "templates_changed": "${TEMPLATES_CHANGED,,}",
-            "static_changed": "${STATIC_CHANGED,,}",
-            "all_changed_files": "${ALL_CHANGED_FILES}",
-            "cart_changed_files": "${CART_FILES}",
-            "products_changed_files": "${PRODUCTS_FILES}"
-          }
-          EOF
-          )
-          
-          echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
-          
           echo "## 🚀 Triggering DevOps Pipeline" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Changed Services:" >> $GITHUB_STEP_SUMMARY
-          [[ "${CART_CHANGED,,}" == "true" ]] && echo "- 🛒 Cart Service" >> $GITHUB_STEP_SUMMARY
-          [[ "${PRODUCTS_CHANGED,,}" == "true" ]] && echo "- 📦 Products Service" >> $GITHUB_STEP_SUMMARY
-          [[ "${CORE_CHANGED,,}" == "true" ]] && echo "- ⚙️ Core/Settings" >> $GITHUB_STEP_SUMMARY
-          [[ "${REQUIREMENTS_CHANGED,,}" == "true" ]] && echo "- 📋 Dependencies" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ steps.changed-files.outputs.cart_any_changed }}" == "true" ]]; then
+            echo "- 🛒 **Cart Service**" >> $GITHUB_STEP_SUMMARY
+            echo "  - Files: \`${{ steps.changed-files.outputs.cart_all_changed_files }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ steps.changed-files.outputs.products_any_changed }}" == "true" ]]; then
+            echo "- 📦 **Products Service**" >> $GITHUB_STEP_SUMMARY
+            echo "  - Files: \`${{ steps.changed-files.outputs.products_all_changed_files }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ steps.changed-files.outputs.core_any_changed }}" == "true" ]]; then
+            echo "- ⚙️ **Core/Settings**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ steps.changed-files.outputs.requirements_any_changed }}" == "true" ]]; then
+            echo "- 📋 **Dependencies**" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Send Dispatch Event to DevOps Repo
         uses: peter-evans/repository-dispatch@v2
@@ -92,4 +70,18 @@ jobs:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: ${{ steps.payload.outputs.payload }}
+          client-payload: |-
+            {
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}",
+              "cart_changed": "${{ steps.changed-files.outputs.cart_any_changed }}",
+              "products_changed": "${{ steps.changed-files.outputs.products_any_changed }}",
+              "core_changed": "${{ steps.changed-files.outputs.core_any_changed }}",
+              "settings_changed": "${{ steps.changed-files.outputs.settings_any_changed }}",
+              "requirements_changed": "${{ steps.changed-files.outputs.requirements_any_changed }}",
+              "templates_changed": "${{ steps.changed-files.outputs.templates_any_changed }}",
+              "static_changed": "${{ steps.changed-files.outputs.static_any_changed }}",
+              "all_changed_files": "${{ steps.changed-files.outputs.all_changed_files }}",
+              "cart_changed_files": "${{ steps.changed-files.outputs.cart_all_changed_files }}",
+              "products_changed_files": "${{ steps.changed-files.outputs.products_all_changed_files }}"
+            }
