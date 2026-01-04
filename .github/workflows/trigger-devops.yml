@@ -73,15 +73,12 @@ jobs:
           client-payload: |-
             {
               "sha": "${{ github.sha }}",
-              "ref": "${{ github.ref }}",
               "cart_changed": "${{ steps.changed-files.outputs.cart_any_changed }}",
               "products_changed": "${{ steps.changed-files.outputs.products_any_changed }}",
               "core_changed": "${{ steps.changed-files.outputs.core_any_changed }}",
               "settings_changed": "${{ steps.changed-files.outputs.settings_any_changed }}",
               "requirements_changed": "${{ steps.changed-files.outputs.requirements_any_changed }}",
-              "templates_changed": "${{ steps.changed-files.outputs.templates_any_changed }}",
-              "static_changed": "${{ steps.changed-files.outputs.static_any_changed }}",
               "all_changed_files": "${{ steps.changed-files.outputs.all_changed_files }}",
-              "cart_changed_files": "${{ steps.changed-files.outputs.cart_all_changed_files }}",
-              "products_changed_files": "${{ steps.changed-files.outputs.products_all_changed_files }}"
+              "cart_files": "${{ steps.changed-files.outputs.cart_all_changed_files }}",
+              "products_files": "${{ steps.changed-files.outputs.products_all_changed_files }}"
             }
