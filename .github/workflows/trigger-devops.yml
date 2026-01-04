@@ -8,10 +8,60 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Paths
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files_yaml: |
+            cart:
+              - cart/**
+            products:
+              - products/**
+            critical:
+              - dorashop/**
+              - requirements.txt
+              - Dockerfile
+              - docker-compose.yml
+              - manage.py
+              - entrypoint.sh
+
+      - name: Build Changed Paths Info
+        id: build-info
+        run: |
+          CHANGED_PATHS=""
+          
+          if [[ "${{ steps.changed-files.outputs.cart_any_changed }}" == "true" ]]; then
+            CHANGED_PATHS="${CHANGED_PATHS}cart,"
+          fi
+          
+          if [[ "${{ steps.changed-files.outputs.products_any_changed }}" == "true" ]]; then
+            CHANGED_PATHS="${CHANGED_PATHS}products,"
+          fi
+          
+          if [[ "${{ steps.changed-files.outputs.critical_any_changed }}" == "true" ]]; then
+            CHANGED_PATHS="${CHANGED_PATHS}critical,"
+          fi
+          
+          # Remove trailing comma
+          CHANGED_PATHS="${CHANGED_PATHS%,}"
+          
+          # If no specific paths changed, mark as "other"
+          if [[ -z "$CHANGED_PATHS" ]]; then
+            CHANGED_PATHS="other"
+          fi
+          
+          echo "changed_paths=$CHANGED_PATHS" >> $GITHUB_OUTPUT
+          echo "📝 Changed paths: $CHANGED_PATHS"
+
       - name: Send Dispatch Event
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: '{"sha": "${{ github.sha }}"}'
+          client-payload: '{"sha": "${{ github.sha }}", "changed_paths": "${{ steps.build-info.outputs.changed_paths }}"}'
