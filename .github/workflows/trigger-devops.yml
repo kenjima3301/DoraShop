@@ -5,94 +5,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-  detect-and-notify:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Detect Changed Files
-        id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files_yaml: |
-            cart:
-              - cart/**
-            products:
-              - products/**
-            core:
-              - dorashop/**
-              - manage.py
-            settings:
-              - dorashop/settings.py
-              - dorashop/urls.py
-            requirements:
-              - requirements.txt
-              - Dockerfile
-              - docker-compose.yml
-              - entrypoint.sh
-            templates:
-              - templates/**
-            static:
-              - static/**
-
-      - name: Display Changes Summary
-        run: |
-          echo "## 🚀 Triggering DevOps Pipeline" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Changed Services:" >> $GITHUB_STEP_SUMMARY
-          
-          if [[ "${{ steps.changed-files.outputs.cart_any_changed }}" == "true" ]]; then
-            echo "- 🛒 **Cart Service**" >> $GITHUB_STEP_SUMMARY
-            echo "  - Files: \`${{ steps.changed-files.outputs.cart_all_changed_files }}\`" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [[ "${{ steps.changed-files.outputs.products_any_changed }}" == "true" ]]; then
-            echo "- 📦 **Products Service**" >> $GITHUB_STEP_SUMMARY
-            echo "  - Files: \`${{ steps.changed-files.outputs.products_all_changed_files }}\`" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [[ "${{ steps.changed-files.outputs.core_any_changed }}" == "true" ]]; then
-            echo "- ⚙️ **Core/Settings**" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [[ "${{ steps.changed-files.outputs.requirements_any_changed }}" == "true" ]]; then
-            echo "- 📋 **Dependencies**" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Send Dispatch Event to DevOps Repo
-        id: dispatch
+      - name: Send Dispatch Event
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.DEVOPS_PAT }}
           repository: kenjima3301/NT548-DevOps 
           event-type: update-submodule
-          client-payload: |-
-            {
-              "sha": "${{ github.sha }}",
-              "cart_changed": "${{ steps.changed-files.outputs.cart_any_changed }}",
-              "products_changed": "${{ steps.changed-files.outputs.products_any_changed }}",
-              "core_changed": "${{ steps.changed-files.outputs.core_any_changed }}",
-              "settings_changed": "${{ steps.changed-files.outputs.settings_any_changed }}",
-              "requirements_changed": "${{ steps.changed-files.outputs.requirements_any_changed }}",
-              "all_changed_files": "${{ steps.changed-files.outputs.all_changed_files }}",
-              "cart_files": "${{ steps.changed-files.outputs.cart_all_changed_files }}",
-              "products_files": "${{ steps.changed-files.outputs.products_all_changed_files }}"
-            }
-
-      - name: Verify Dispatch
-        if: always()
-        run: |
-          echo "## ✅ Repository Dispatch Sent" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Repository:** kenjima3301/NT548-DevOps" >> $GITHUB_STEP_SUMMARY
-          echo "**Event Type:** update-submodule" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Note:** If NT548-DevOps workflow doesn't trigger, check:" >> $GITHUB_STEP_SUMMARY
-          echo "1. PAT token has \`workflow\` scope" >> $GITHUB_STEP_SUMMARY
-          echo "2. update-submodule.yml exists in NT548-DevOps/.github/workflows/" >> $GITHUB_STEP_SUMMARY
-          echo "3. Event type matches: \`repository_dispatch.types: [update-submodule]\`" >> $GITHUB_STEP_SUMMARY
+          client-payload: '{"sha": "${{ github.sha }}"}'
